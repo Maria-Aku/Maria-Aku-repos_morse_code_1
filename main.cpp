@@ -6,9 +6,6 @@
 #include <QDebug>
 #include <QTextStream>
 
-
-
-
 void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString morse, QSet <QString>& decriptions)
 {
     //Для длины префикса от 0 до (5 и не более длины строки непереведенной части)
@@ -55,14 +52,8 @@ void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString
     }
 }
 
-
-
-
-int main(int argc, char*  argv[])
+void decoding_message_from_Morse(QString message_morse, QSet <QString>& decriptions)
 {
-
-    QString message_morse= "--.";
-    QSet <QString> decriptions;
     QString decrypted = "";
 
     //создать набор комбинаций (алфавит) перевода символов с азбуки Морзе
@@ -81,9 +72,55 @@ int main(int argc, char*  argv[])
         {'8', "---.."}, {'9', "----."}
     };
 
-
+    //Поиск переводов сообщения на азбуке Морзе
     decrypt(MorseToChar, decrypted, message_morse, decriptions);
+}
+
+
+
+int main(int argc, char*  argv[])
+{
+
+    QString morse= "--.";
+    QSet <QString> decriptions;
+
+    decoding_message_from_Morse(morse,  decriptions);
     qDebug() << decriptions;
 
+
+    // for (int i = 0; i < argc; i++)
+    // {
+    //     std::cout << argv[i];
+    // }
+
+    // // Проверить корректность ввода названий файлов
+    // bool input_correct = is_input_filename_correctly(argc, argv);
+
+
+    // //Если ошибок нет
+    // if(input_correct)
+    // {
+    //     QFile morse_file(argv[1]);
+
+    //     //Прочитать строку с сообщением из файла
+    //     if (!morse_file.open(QIODevice::ReadOnly))
+    //     {
+    //           qWarning() << "Could not open file";
+    //     }
+    //     else
+    //     {
+    //         QTextStream in(&morse_file);
+    //         QString str_morse = in.readAll();
+    //     }
+
+
+    //     //Проверить сообщение на азбуке Морзе
+
+    //     //Если ошибки есть, то вывести все полученные ошибки
+    //     //Иначе расшифровать сообщение на азбуке Морзе и записать в файл все переводы
+    // }
+
+    //Иначе вывести сообщение с ошибкой ввода данных
+    //Вернуть успешность завершения функции
 
 }
