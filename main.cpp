@@ -6,6 +6,53 @@
 #include <QDebug>
 #include <QTextStream>
 
+enum type_error { ManyStrings, OtherSymbols, ManySymbols, EmptyString };
+
+struct Error
+{
+    enum type_error type;
+    QString error_char;
+    int position_error;
+    QString toString() const;
+
+    // ***ПЕРЕГРУЗКА ОПЕРАТОРА < ДОЛЖНА БЫТЬ ЗДЕСЬ, ВНУТРИ СТРУКТУРЫ*** (только для VC)
+    bool operator<(const Error& other) const {
+        // Логика сравнения (как в предыдущем примере)
+        if (type != other.type) {
+            return type < other.type;
+        }
+        else if (position_error != other.position_error) {
+            return position_error < other.position_error;
+        }
+        else if (error_char != other.error_char) {
+            return error_char < other.error_char;
+        }
+        return error_char < other.error_char;
+    }
+};
+
+QString Error::toString() const
+{
+    QString result;
+    QTextStream stream(&result);
+
+    switch (type)
+    {
+    case ManyStrings:
+        return "Contains a message breakdown on a new line";
+    case ManySymbols:
+        return "The message contains more than 20 characters";
+    case EmptyString:
+        return "Empty message";
+    case OtherSymbols:
+        stream << "Symbol \'" << error_char << "\' : " << position_error;
+        return result;
+    default:
+        return "Unknown Error";
+    }
+}
+
+
 void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString morse, QSet <QString>& decriptions)
 {
     //Для длины префикса от 0 до (5 и не более длины строки непереведенной части)
@@ -80,12 +127,12 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
 
 int main(int argc, char*  argv[])
 {
+    Error er ;
+    er.type = OtherSymbols;
+    er.position_error = 1;
+    er.error_char = 'q';
 
-    QString morse= "--.";
-    QSet <QString> decriptions;
-
-    decoding_message_from_Morse(morse,  decriptions);
-    qDebug() << decriptions;
+    qDebug() <<  er.toString();
 
 
     // for (int i = 0; i < argc; i++)
