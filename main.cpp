@@ -67,13 +67,10 @@ bool correct_morse(const QString message, QSet<Error>& errors)
                 er3.position_error = 0;
                 er3.error_char = 0;
                 errors.insert(er3);
-                 qDebug() << er3.type << er3.position_error <<er3.error_char ;
-                 qDebug() << errors.size();
-
             }
 
             //Если текущий символ отличный от точки и дефиса, то зафиксировать наличие ошибки (позицию и сам символ)
-            if (message[i] != '\n' && (message[i] != '.' && message[i] != '-'))
+            if (message[i] != '\r' && message[i] != '\n' && (message[i] != '.' && message[i] != '-'))
             {
                 Error er4;
                 er4.type = OtherSymbols;
@@ -156,7 +153,6 @@ bool is_input_filename_correctly(int argc, char* argv[])
             }
         }
     }
-    qDebug() << error ;
     //Если есть ошибки во входной строке, вернуть существование ошибки иначе вернуть ее отсутствие
     return error == 0;
 }
@@ -233,48 +229,82 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
 
 
 
-int main()
+int main(int argc, char*  argv[])
 {
+    QString str_morse;
     QSet<Error> errors;
-    QString message = "-\n-1.\n";
-    bool ok = correct_morse( message,errors);
-    qDebug() << ok;
-    qDebug() << errors.count();
+    QSet <QString> decriptions;
+
+    // Проверить корректность ввода названий файлов
+    bool input_correct = is_input_filename_correctly(argc, argv);
 
 
-    // for (int i = 0; i < argc; i++)
-    // {
-    //     std::cout << argv[i];
-    // }
-
-    // // Проверить корректность ввода названий файлов
-    // bool input_correct = is_input_filename_correctly(argc, argv);
-
-
-    // //Если ошибок нет
+    //Если ошибок нет
     // if(input_correct)
+    {
+        QFile morse_file("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/morse.txt");
+
+
+        //Прочитать строку с сообщением из файла
+        if (!morse_file.open(QIODevice::ReadOnly))
+        {
+              qWarning() << "Could not open file";
+            morse_file.close();
+        }
+        else
+        {
+            QTextStream in(&morse_file);
+            str_morse = in.readAll();
+            morse_file.close();
+        }
+
+        //Проверить сообщение на азбуке Морзе
+        bool check_morse = correct_morse(str_morse,errors);
+
+        //Если ошибки есть, то вывести все полученные ошибки
+        if (!check_morse)
+        {
+            QSet<Error>::iterator iter = errors.begin();
+            while (iter != errors.end())
+            {
+                    qDebug() << iter->toString();
+                    iter++;
+            }
+        }
+        //Иначе расшифровать сообщение на азбуке Морзе и записать в файл все переводы
+        else
+        {
+            decoding_message_from_Morse(str_morse,  decriptions);
+
+            //проверка
+            for (QSet<QString>::iterator it = decriptions.begin(); it != decriptions.end(); ++it)
+            {
+                qDebug() << *it << '\n';
+            }
+
+            QFile decryptedFile("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/decription.txt");
+
+            if (!decryptedFile.open(QIODevice::WriteOnly )) {
+                qCritical() << "Could not open file for writing";
+                decryptedFile.close();
+                return 1;
+            }
+
+            QTextStream out(&decryptedFile);
+            int i = 1;
+            for (QSet<QString>::const_iterator it = decriptions.begin(); it != decriptions.end(); it++)
+            {
+                out << i << ") " << *it << '\n';
+                i++;
+            }
+            decryptedFile.close();
+        }
+    }
+    //else
     // {
-    //     QFile morse_file(argv[1]);
-
-    //     //Прочитать строку с сообщением из файла
-    //     if (!morse_file.open(QIODevice::ReadOnly))
-    //     {
-    //           qWarning() << "Could not open file";
-    //     }
-    //     else
-    //     {
-    //         QTextStream in(&morse_file);
-    //         QString str_morse = in.readAll();
-    //     }
-
-
-    //     //Проверить сообщение на азбуке Морзе
-
-    //     //Если ошибки есть, то вывести все полученные ошибки
-    //     //Иначе расшифровать сообщение на азбуке Морзе и записать в файл все переводы
+    //     std::cerr << "the files have problems with the extension";
     // }
-
     //Иначе вывести сообщение с ошибкой ввода данных
     //Вернуть успешность завершения функции
-
+    return 0;
 }
