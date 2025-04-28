@@ -6,6 +6,109 @@
 #include <QDebug>
 #include <QTextStream>
 
+enum type_error { ManyStrings, OtherSymbols, ManySymbols, EmptyString };
+
+struct Error
+{
+    enum type_error type;
+    QString error_char;
+    int position_error;
+    QString toString() const;
+
+    // ***ПЕРЕГРУЗКА ОПЕРАТОРА == ДОЛЖНА БЫТЬ ЗДЕСЬ, ВНУТРИ СТРУКТУРЫ**
+    bool operator==(const Error& other) const {
+        return (type == other.type) &&
+               (position_error == other.position_error) &&
+               (error_char == other.error_char);
+    }
+};
+
+//seed - начальное значение для хеша
+inline uint qHash(const Error& key, uint seed = 0)
+{
+    return qHash(key.type, seed) ^
+           qHash(key.position_error, seed + 1) ^  // разный seed для каждого поля
+           qHash(key.error_char, seed + 2);
+
+}
+
+bool correct_morse(const QString message, QSet<Error>& errors)
+{
+    //Если строка с сообщением пустая, то записать ошибку отсутствия символов в сообщение
+    if (message.isEmpty())
+    {
+        Error er1;
+        er1.type = EmptyString;
+        errors.insert(er1);
+    }
+    //Иначе
+    else
+    {
+        //получить длину сообщения
+        int length_message = message.length();
+
+        //Если в строке содержится больше 20 символов, то зафиксировать ошибку превышение допустимого количества символов
+        if (length_message > 20)
+        {
+            Error er2;
+            er2.type = ManySymbols;
+            errors.insert(er2);
+        }
+
+
+        //Для каждого символа строки, с сообщением на азбуке Морзе
+        for (int i = 0; i < length_message; i++)
+        {
+            //Если сообщение содержит больше одной строки сообщения (\n), то зафиксировать ошибку превышения количества строк
+            if (message[i] == '\n')
+            {
+                Error er3;
+                er3.type = ManyStrings;
+                er3.position_error = 0;
+                er3.error_char = 0;
+                errors.insert(er3);
+                 qDebug() << er3.type << er3.position_error <<er3.error_char ;
+                 qDebug() << errors.size();
+
+            }
+
+            //Если текущий символ отличный от точки и дефиса, то зафиксировать наличие ошибки (позицию и сам символ)
+            if (message[i] != '\n' && (message[i] != '.' && message[i] != '-'))
+            {
+                Error er4;
+                er4.type = OtherSymbols;
+                er4.error_char = message[i];
+                er4.position_error = i + 1;
+                errors.insert(er4);
+            }
+        }
+    }
+
+    //Вернуть признак наличие ошибки в сообщение
+    return errors.empty() ? true : false;
+}
+
+QString Error::toString() const
+{
+    QString result;
+    QTextStream stream(&result);
+
+    switch (type)
+    {
+    case ManyStrings:
+        return "Contains a message breakdown on a new line";
+    case ManySymbols:
+        return "The message contains more than 20 characters";
+    case EmptyString:
+        return "Empty message";
+    case OtherSymbols:
+        stream << "Symbol \'" << error_char << "\' : " << position_error;
+        return result;
+    default:
+        return "Unknown Error";
+    }
+}
+
 bool is_extensive_ok(const QString filename, const QString extension)
 {
     QString got_extension;
@@ -57,7 +160,6 @@ bool is_input_filename_correctly(int argc, char* argv[])
     //Если есть ошибки во входной строке, вернуть существование ошибки иначе вернуть ее отсутствие
     return error == 0;
 }
-
 
 void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString morse, QSet <QString>& decriptions)
 {
@@ -133,10 +235,11 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
 
 int main()
 {
-    char* args[] = { "program.exe", "file1.txt", "file2.txt" };
-    int argc = 3;
-    bool ok = is_input_filename_correctly(argc,args);
-    qDebug() << ok ;
+    QSet<Error> errors;
+    QString message = "-\n-1.\n";
+    bool ok = correct_morse( message,errors);
+    qDebug() << ok;
+    qDebug() << errors.count();
 
 
     // for (int i = 0; i < argc; i++)
