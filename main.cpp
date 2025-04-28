@@ -26,6 +26,39 @@ bool is_extensive_ok(const QString filename, const QString extension)
     return got_extension == extension ? true : false;
 }
 
+bool is_input_filename_correctly(int argc, char* argv[])
+{
+    int error = 0;
+    // Если количество аргументов не равно 3х, то зафиксировать наличие ошибки
+    if (argc != 3)
+    {
+        error++;
+    }
+    // Иначе
+    else
+    {
+        //..расширение файла (.txt)
+        QString extension = "txt";
+
+        //Для каждого аргумента названий файлов, начиная с первого, пока есть аргументы
+        for (int i = 1; i < argc; i++)
+        {
+            // Проверить, что расширение файла - txt
+            qDebug() << argv[i];
+            bool extension_error = is_extensive_ok(argv[i], extension);
+            // Если ошибка есть, увеличиваем счетчик наличие ошибки в расширении
+            if (extension_error == false)
+            {
+                error++;
+            }
+        }
+    }
+    qDebug() << error ;
+    //Если есть ошибки во входной строке, вернуть существование ошибки иначе вернуть ее отсутствие
+    return error == 0;
+}
+
+
 void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString morse, QSet <QString>& decriptions)
 {
     //Для длины префикса от 0 до (5 и не более длины строки непереведенной части)
@@ -98,12 +131,12 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
 
 
 
-int main(int argc, char*  argv[])
+int main()
 {
-    QString filename = "E:/MORSE/x64/Debug.txt/decryption.xt";
-    QString extension = "txt";
-    bool ok = is_extensive_ok(filename,extension);
-    qDebug() << ok;
+    char* args[] = { "program.exe", "file1.txt", "file2.txt" };
+    int argc = 3;
+    bool ok = is_input_filename_correctly(argc,args);
+    qDebug() << ok ;
 
 
     // for (int i = 0; i < argc; i++)
