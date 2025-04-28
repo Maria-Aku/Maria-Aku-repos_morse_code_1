@@ -6,52 +6,25 @@
 #include <QDebug>
 #include <QTextStream>
 
-enum type_error { ManyStrings, OtherSymbols, ManySymbols, EmptyString };
-
-struct Error
+bool is_extensive_ok(const QString filename, const QString extension)
 {
-    enum type_error type;
-    QString error_char;
-    int position_error;
-    QString toString() const;
+    QString got_extension;
 
-    // ***ПЕРЕГРУЗКА ОПЕРАТОРА < ДОЛЖНА БЫТЬ ЗДЕСЬ, ВНУТРИ СТРУКТУРЫ*** (только для VC)
-    bool operator<(const Error& other) const {
-        // Логика сравнения (как в предыдущем примере)
-        if (type != other.type) {
-            return type < other.type;
-        }
-        else if (position_error != other.position_error) {
-            return position_error < other.position_error;
-        }
-        else if (error_char != other.error_char) {
-            return error_char < other.error_char;
-        }
-        return error_char < other.error_char;
-    }
-};
+    // Найти тип введенном названии файла
+    int last_point = filename.lastIndexOf('.');
 
-QString Error::toString() const
-{
-    QString result;
-    QTextStream stream(&result);
-
-    switch (type)
+    if (last_point != -1)
     {
-    case ManyStrings:
-        return "Contains a message breakdown on a new line";
-    case ManySymbols:
-        return "The message contains more than 20 characters";
-    case EmptyString:
-        return "Empty message";
-    case OtherSymbols:
-        stream << "Symbol \'" << error_char << "\' : " << position_error;
-        return result;
-    default:
-        return "Unknown Error";
+        got_extension = filename.mid(last_point + 1);
     }
-}
+    else
+    {
+        return false;
+    }
 
+    //Если полученный тип совпадает с введенным типом тип, ввернуть отсутствие ошибки иначе вернуть ошибка существует
+    return got_extension == extension ? true : false;
+}
 
 void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString morse, QSet <QString>& decriptions)
 {
@@ -127,12 +100,10 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
 
 int main(int argc, char*  argv[])
 {
-    Error er ;
-    er.type = OtherSymbols;
-    er.position_error = 1;
-    er.error_char = 'q';
-
-    qDebug() <<  er.toString();
+    QString filename = "E:/MORSE/x64/Debug.txt/decryption.xt";
+    QString extension = "txt";
+    bool ok = is_extensive_ok(filename,extension);
+    qDebug() << ok;
 
 
     // for (int i = 0; i < argc; i++)
