@@ -1,3 +1,4 @@
+#include <QtCore/QCoreApplication>
 #include <iostream>
 #include <QString>
 #include <QSet>
@@ -5,6 +6,8 @@
 #include <Qfile>
 #include <QDebug>
 #include <QTextStream>
+#include "test_decrypt.h"
+#include "main.h"
 
 enum type_error { ManyStrings, OtherSymbols, ManySymbols, EmptyString };
 
@@ -15,7 +18,7 @@ struct Error
     int position_error;
     QString toString() const;
 
-    // ***ПЕРЕГРУЗКА ОПЕРАТОРА == ДОЛЖНА БЫТЬ ЗДЕСЬ, ВНУТРИ СТРУКТУРЫ**
+    // Перегрузка операции ==
     bool operator==(const Error& other) const {
         return (type == other.type) &&
                (position_error == other.position_error) &&
@@ -23,11 +26,11 @@ struct Error
     }
 };
 
-//seed - начальное значение для хеша
+//seed — это начальное значение, которое используется в некоторых хеш-функциях для инициализации процесса хеширования.
 inline uint qHash(const Error& key, uint seed = 0)
 {
     return qHash(key.type, seed) ^
-           qHash(key.position_error, seed + 1) ^  // разный seed для каждого поля
+           qHash(key.position_error, seed + 1) ^
            qHash(key.error_char, seed + 2);
 
 }
@@ -59,7 +62,7 @@ bool correct_morse(const QString message, QSet<Error>& errors)
         //Для каждого символа строки, с сообщением на азбуке Морзе
         for (int i = 0; i < length_message; i++)
         {
-            //Если сообщение содержит больше одной строки сообщения (\n), то зафиксировать ошибку превышения количества строк
+           //Если сообщение содержит больше одной строки сообщения (\n), то зафиксировать ошибку превышения количества строк
             if (message[i] == '\n')
             {
                 Error er3;
@@ -184,7 +187,7 @@ void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString
 
                 // Добавить букву к переведенной части
                 QString augmented_decrypted = decrypted + found_letter;
-                found_letter = '\0';
+               found_letter = '\0';
                 // Если оставшаяся часть на азбуке Морзе непустая
                 if (!morse_withount_pref.isEmpty())
                 {
@@ -207,7 +210,7 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
 {
     QString decrypted = "";
 
-    //создать набор комбинаций (алфавит) перевода символов с азбуки Морзе
+    //СЃРѕР·РґР°С‚СЊ РЅР°Р±РѕСЂ РєРѕРјР±РёРЅР°С†РёР№ (Р°Р»С„Р°РІРёС‚) РїРµСЂРµРІРѕРґР° СЃРёРјРІРѕР»РѕРІ СЃ Р°Р·Р±СѓРєРё РњРѕСЂР·Рµ
     QMap<char, QString> MorseToChar = {
         {'A', ".-"}, {'B', "-..."}, { 'C', "-.-."},
         {'D', "-.."}, {'E', "."}, {'F', "..-."},
@@ -223,7 +226,7 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
         {'8', "---.."}, {'9', "----."}
     };
 
-    //Поиск переводов сообщения на азбуке Морзе
+    //РџРѕРёСЃРє РїРµСЂРµРІРѕРґРѕРІ СЃРѕРѕР±С‰РµРЅРёСЏ РЅР° Р°Р·Р±СѓРєРµ РњРѕСЂР·Рµ
     decrypt(MorseToChar, decrypted, message_morse, decriptions);
 }
 
@@ -245,7 +248,7 @@ int main(int argc, char*  argv[])
         QFile morse_file("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/morse.txt");
 
 
-        //Прочитать строку с сообщением из файла
+      // Проверка открытия файла
         if (!morse_file.open(QIODevice::ReadOnly))
         {
               qWarning() << "Could not open file";
@@ -253,6 +256,7 @@ int main(int argc, char*  argv[])
         }
         else
         {
+            //Прочитать строку с сообщением из файла
             QTextStream in(&morse_file);
             str_morse = in.readAll();
             morse_file.close();
@@ -266,7 +270,7 @@ int main(int argc, char*  argv[])
         {
             QSet<Error>::iterator iter = errors.begin();
             while (iter != errors.end())
-            {
+           {
                     qDebug() << iter->toString();
                     iter++;
             }
@@ -276,11 +280,11 @@ int main(int argc, char*  argv[])
         {
             decoding_message_from_Morse(str_morse,  decriptions);
 
-            //проверка
-            for (QSet<QString>::iterator it = decriptions.begin(); it != decriptions.end(); ++it)
-            {
-                qDebug() << *it << '\n';
-            }
+            // //проверка
+            //  for (QSet<QString>::iterator it = decriptions.begin(); it != decriptions.end(); ++it)
+            // {
+            //     qDebug() << *it << '\n';
+            //  }
 
             QFile decryptedFile("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/decription.txt");
 
@@ -300,11 +304,12 @@ int main(int argc, char*  argv[])
             decryptedFile.close();
         }
     }
+    //Иначе вывести сообщение с ошибкой ввода данных
     //else
     // {
-    //     std::cerr << "the files have problems with the extension";
+   //     std::cerr << "the files have problems with the extension";
     // }
-    //Иначе вывести сообщение с ошибкой ввода данных
     //Вернуть успешность завершения функции
+    // QTest::qExec(new test_decrypt,argc,argv);
     return 0;
 }
