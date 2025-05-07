@@ -7,24 +7,9 @@
 #include <QDebug>
 #include <QTextStream>
 #include "test_decrypt.h"
+#include "test_decoding_message_from_morse.h"
 #include "main.h"
 
-enum type_error { ManyStrings, OtherSymbols, ManySymbols, EmptyString };
-
-struct Error
-{
-    enum type_error type;
-    QString error_char;
-    int position_error;
-    QString toString() const;
-
-    // Перегрузка операции ==
-    bool operator==(const Error& other) const {
-        return (type == other.type) &&
-               (position_error == other.position_error) &&
-               (error_char == other.error_char);
-    }
-};
 
 //seed — это начальное значение, которое используется в некоторых хеш-функциях для инициализации процесса хеширования.
 inline uint qHash(const Error& key, uint seed = 0)
@@ -210,7 +195,7 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
 {
     QString decrypted = "";
 
-    //СЃРѕР·РґР°С‚СЊ РЅР°Р±РѕСЂ РєРѕРјР±РёРЅР°С†РёР№ (Р°Р»С„Р°РІРёС‚) РїРµСЂРµРІРѕРґР° СЃРёРјРІРѕР»РѕРІ СЃ Р°Р·Р±СѓРєРё РњРѕСЂР·Рµ
+    //создать набор комбинаций (алфавит) перевода символов с азбуки Морзе
     QMap<char, QString> MorseToChar = {
         {'A', ".-"}, {'B', "-..."}, { 'C', "-.-."},
         {'D', "-.."}, {'E', "."}, {'F', "..-."},
@@ -226,7 +211,7 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
         {'8', "---.."}, {'9', "----."}
     };
 
-    //РџРѕРёСЃРє РїРµСЂРµРІРѕРґРѕРІ СЃРѕРѕР±С‰РµРЅРёСЏ РЅР° Р°Р·Р±СѓРєРµ РњРѕСЂР·Рµ
+    //Поиск переводов сообщения на азбуке Морзе
     decrypt(MorseToChar, decrypted, message_morse, decriptions);
 }
 
@@ -311,5 +296,6 @@ int main(int argc, char*  argv[])
     // }
     //Вернуть успешность завершения функции
     // QTest::qExec(new test_decrypt,argc,argv);
+      QTest::qExec(new test_decoding_message_from_Morse,argc,argv);
     return 0;
 }
