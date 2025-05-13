@@ -1,24 +1,7 @@
-#include <QtCore/QCoreApplication>
-#include <iostream>
-#include <QString>
-#include <QSet>
-#include <QMap>
-#include <Qfile>
-#include <QDebug>
-#include <QTextStream>
+#include "main.h"
 #include "test_decrypt.h"
 #include "test_decoding_message_from_morse.h"
-#include "main.h"
-
-
-//seed — это начальное значение, которое используется в некоторых хеш-функциях для инициализации процесса хеширования.
-inline uint qHash(const Error& key, uint seed = 0)
-{
-    return qHash(key.type, seed) ^
-           qHash(key.position_error, seed + 1) ^
-           qHash(key.error_char, seed + 2);
-
-}
+#include "test_correct_morse.h"
 
 bool correct_morse(const QString message, QSet<Error>& errors)
 {
@@ -27,6 +10,8 @@ bool correct_morse(const QString message, QSet<Error>& errors)
     {
         Error er1;
         er1.type = EmptyString;
+        er1.position_error = -1;
+        er1.error_char = "";
         errors.insert(er1);
     }
     //Иначе
@@ -40,6 +25,8 @@ bool correct_morse(const QString message, QSet<Error>& errors)
         {
             Error er2;
             er2.type = ManySymbols;
+            er2.position_error = -1;
+            er2.error_char = "";
             errors.insert(er2);
         }
 
@@ -52,8 +39,8 @@ bool correct_morse(const QString message, QSet<Error>& errors)
             {
                 Error er3;
                 er3.type = ManyStrings;
-                er3.position_error = 0;
-                er3.error_char = 0;
+                er3.position_error = -1;
+                er3.error_char = "";
                 errors.insert(er3);
             }
 
@@ -294,8 +281,20 @@ int main(int argc, char*  argv[])
     // {
    //     std::cerr << "the files have problems with the extension";
     // }
+
+
     //Вернуть успешность завершения функции
-    // QTest::qExec(new test_decrypt,argc,argv);
-      QTest::qExec(new test_decoding_message_from_Morse,argc,argv);
+      // QTest::qExec(new test_decrypt,argc,argv);
+      // QTest::qExec(new test_decoding_message_from_Morse,argc,argv);
+      QTest::qExec(new test_correct_morse,argc,argv);
     return 0;
+}
+
+QString errorTypeToString(type_error type) {
+    switch (type) {
+    case EmptyString:   return "EmptyString";
+    case ManySymbols:   return "ManySymbols";
+    case ManyStrings:   return "ManyStrings";
+    case OtherSymbols:   return "OtherSymbols";    default:            return "UnknownErrorType";
+    }
 }

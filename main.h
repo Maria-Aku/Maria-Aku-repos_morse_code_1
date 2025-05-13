@@ -1,10 +1,17 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include <QtCore/QCoreApplication>
+#include <iostream>
 #include <QString>
 #include <QSet>
-#include <QMap> // Используем QMap
+#include <QMap>
+#include <Qfile>
+#include <QDebug>
+#include <QTextStream>
 #include <QTest> // Обязательно для QCOMPARE
+
+
 enum type_error { ManyStrings, OtherSymbols, ManySymbols, EmptyString };
 
 struct Error
@@ -22,8 +29,18 @@ struct Error
     }
 };
 
+//seed — это начальное значение, которое используется в некоторых хеш-функциях для инициализации процесса хеширования.
+inline uint qHash(const Error& key, uint seed = 0)
+{
+    return qHash(key.type, seed) ^
+           qHash(key.position_error, seed + 1) ^
+           qHash(key.error_char, seed + 2);
+
+}
 
 void decrypt(const QMap<char, QString>& MorseToChar, QString decrypted, QString morse, QSet<QString>& decriptions);
 void decoding_message_from_Morse(QString message_morse, QSet <QString>& decriptions);
 bool correct_morse(const QString message, QSet<Error> & errors);
+
+QString errorTypeToString(type_error type);
 #endif // MAIN_H
