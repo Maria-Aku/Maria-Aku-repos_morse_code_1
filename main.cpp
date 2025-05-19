@@ -68,16 +68,16 @@ QString Error::toString() const
     switch (type)
     {
     case ManyStrings:
-        return "Contains a message breakdown on a new line";
+        return "Программа принимает на вход файлы из одной строки. Необходимо изменить сообщение или разбить его на два файла.";
     case ManySymbols:
-        return "The message contains more than 20 characters";
+        return "Входной файл содержит количества символов, которое больше допустимого (20)";
     case EmptyString:
-        return "Empty message";
+        return "Выбранный файл пуст";
     case OtherSymbols:
-        stream << "Symbol \'" << error_char << "\' : " << position_error;
+        stream << "Файл с сообщением содержит символы отличные от дефиса и точки. Символ \'" << error_char << "\' : " << position_error;
         return result;
     default:
-        return "Unknown Error";
+        return "Неизвестная ошибка";
     }
 }
 
@@ -119,7 +119,7 @@ bool is_input_filename_correctly(int argc, char* argv[])
         for (int i = 1; i < argc; i++)
         {
             // Проверить, что расширение файла - txt
-            qDebug() << argv[i];
+            // qDebug() << argv[i];
             bool extension_error = is_extensive_ok(argv[i], extension);
             // Если ошибка есть, увеличиваем счетчик наличие ошибки в расширении
             if (extension_error == false)
@@ -210,21 +210,22 @@ int main(int argc, char*  argv[])
     QSet<Error> errors;
     QSet <QString> decriptions;
 
+
     // Проверить корректность ввода названий файлов
     bool input_correct = is_input_filename_correctly(argc, argv);
 
 
     //Если ошибок нет
-    // if(input_correct)
+    if(input_correct)
     {
-        QFile morse_file("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/morse.txt");
-
+        // QFile morse_file("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/morse.txt");
+        QFile morse_file(argv[1]);
 
       // Проверка открытия файла
         if (!morse_file.open(QIODevice::ReadOnly))
         {
-              qWarning() << "Could not open file";
-            morse_file.close();
+              qWarning() << "Неверно указан файл с входными данными. Возможно, файл не существует.";
+              morse_file.close();
         }
         else
         {
@@ -252,16 +253,17 @@ int main(int argc, char*  argv[])
         {
             decoding_message_from_Morse(str_morse,  decriptions);
 
-            // //проверка
+            //проверка
             //  for (QSet<QString>::iterator it = decriptions.begin(); it != decriptions.end(); ++it)
             // {
             //     qDebug() << *it << '\n';
             //  }
 
-            QFile decryptedFile("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/decription.txt");
+            //QFile decryptedFile("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/decription.txt");
+             QFile decryptedFile(argv[2]);
 
             if (!decryptedFile.open(QIODevice::WriteOnly )) {
-                qCritical() << "Could not open file for writing";
+                qCritical() << "Неверно указан файл для выходных данных. Возможно, указанного расположения не существует или нет прав на запись.";
                 decryptedFile.close();
                 return 1;
             }
@@ -277,16 +279,16 @@ int main(int argc, char*  argv[])
         }
     }
     //Иначе вывести сообщение с ошибкой ввода данных
-    //else
-    // {
-   //     std::cerr << "the files have problems with the extension";
-    // }
+     else
+      {
+        qInfo() << "Неправильно введено расширение файла. Должно быть .txt";
+     }
 
 
     //Вернуть успешность завершения функции
-      // QTest::qExec(new test_decrypt,argc,argv);
-      // QTest::qExec(new test_decoding_message_from_Morse,argc,argv);
-      QTest::qExec(new test_correct_morse,argc,argv);
+      // QTest::qExec(new test_decrypt);
+      // QTest::qExec(new test_decoding_message_from_Morse);
+      // QTest::qExec(new test_correct_morse);
     return 0;
 }
 
@@ -295,6 +297,7 @@ QString errorTypeToString(type_error type) {
     case EmptyString:   return "EmptyString";
     case ManySymbols:   return "ManySymbols";
     case ManyStrings:   return "ManyStrings";
-    case OtherSymbols:   return "OtherSymbols";    default:            return "UnknownErrorType";
+    case OtherSymbols:   return "OtherSymbols";
+    default:            return "UnknownErrorType";
     }
 }
