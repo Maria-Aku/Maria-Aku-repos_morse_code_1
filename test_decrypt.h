@@ -22,62 +22,33 @@ public:
     explicit test_decrypt(QObject *parent = nullptr);
 
 private slots:
-    /*!
-     * \brief Тест 1 : Базовый тест
-     * простой тест, проверяющий базовую функциональность дешифрирования
-     */
-    void test1_Basic();
 
     /*!
-     * \brief Тест 2 : Сообщение состоит из чередования точек и дефисов
+     * \brief Инициализирует данные, необходимые для всех тестов.
+     *
+     * Этот метод вызывается один раз перед запуском всех тестовых случаев.
+     * Он инициализирует карту символов MorseToChar.
      */
-    void test2_SequencesOfAlternatingDots_Dashes();
+    void initTestCase();
 
     /*!
-     * \brief Тест 3 : Сообщение состоит из двух точек
+     * \brief Предоставляет заполнение данными тестовых ситуаций
+     *
+     * Этот метод определяет тестовые ситуации, устанавливая различные значения
+     * для входных параметров (например, morse, decrypted) и ожидаемых результатов.
      */
-    void test3_MessageConsistsOfTwoDots();
+    void add_data();
 
     /*!
-     * \brief Тест 4 : Сообщение состоит из двух тире
+     * \brief Выполняет запуск тестовых ситуаций с использованием предоставленных данных.
+     *
+     * Этот метод вызывается для каждой строки данных, предоставленной методом add_data().
+     * Он извлекает входные значения, выполняет декодирование азбуки Морзе
+     * и сравнивает полученные результаты с ожидаемыми.
      */
-    void test4_MessageConsistsOfTwoHyphens();
+    void add();
 
-    /*!
-     * \brief Тест 5 : Сообщение состоит из одной точки
-     */
-    void test5_MessageConsistsOfADot();
 
-    /*!
-     * \brief Тест 6 : Сообщение состоит из одного тире
-     */
-    void test6_MessageConsistsOfAHyphen();
-
-    /*!
-     * \brief Тест 7 : Сообщение из нескольких символов, одна точка вначале
-     * и много дефисов
-     */
-    void test7_MultiCharacterMessage();
-
-    /*!
-     * \brief Тест 8 : Символы в алфавите дешифруются одинаково
-     */
-    void test8_CharactersAlphabetDecipheredTheSameWay();
-
-    /*!
-     * \brief Тест 9 : Часть сообщения уже дешифрована
-     */
-    void test9_PartOfMessageAlreadyHasTranslation();
-
-    /*!
-     * \brief Тест 10: Список существующих дешифровок не пуст
-     */
-    void test10_TheListOfExistingTransfersIsNotEmpty();
-
-    /*!
-     * \brief Тест 11: В алфавите отсутствует символ для дешифровки
-     */
-    void test11_ThereIsNoTranslationSymbolInTheAlphabet();
 
 signals:
 };
