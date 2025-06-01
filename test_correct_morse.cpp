@@ -1,9 +1,6 @@
 #include "test_correct_morse.h"
 #include "main.h"
-#include <QString>
-#include <QSet>
-#include <QMap>
-#include <QDebug>
+
 test_correct_morse::test_correct_morse(QObject *parent)
     : QObject{parent}
 {}
@@ -21,94 +18,162 @@ void test_correct_morse::test1_EmptyMessage()
     expect_error.type = EmptyString;
     expect_error.position_error = -1;
     expect_error.error_char = "";
-   expectedErrors.insert(expect_error);
+    expectedErrors.insert(expect_error);
 
     // Проверки
     QCOMPARE(correct, expect_correct);
     QCOMPARE(errors.size(), expectedErrors.size());
 
-    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
         if (error_iterator == errors.end())
         {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
             qDebug() << "Actual errors:";
-            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
                 const Error& error = *it;
                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
             }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
         }
-        QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
     }
-
 }
 
- void test_correct_morse::test2_TwoLineMessage()
+void test_correct_morse::test2_TwoLineMessage()
 {
-     const QString message = ".-.--\n---.-.";
-     QSet<Error>  errors;
-     bool correct = correct_morse(message, errors);
+    const QString message = ".-.--\n---.-.";
+    QSet<Error>  errors;
+    bool correct = correct_morse(message, errors);
 
-     QSet<Error> expectedErrors;
-     // Ожидаемые результаты
-     bool expect_correct = false;
-     Error expect_error;
-     expect_error.type = ManyStrings;
-     expect_error.position_error = -1;
-     expect_error.error_char = "";
-     expectedErrors.insert(expect_error);
+    QSet<Error> expectedErrors;
+    // Ожидаемые результаты
+    bool expect_correct = false;
+    Error expect_error;
+    expect_error.type = ManyStrings;
+    expect_error.position_error = -1;
+    expect_error.error_char = "";
+    expectedErrors.insert(expect_error);
 
-     // Проверки
-     QCOMPARE(correct, expect_correct);
-     QCOMPARE(errors.size(), expectedErrors.size());
+    // Проверки
+    QCOMPARE(correct, expect_correct);
+    QCOMPARE(errors.size(), expectedErrors.size());
 
-     for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
-         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
-         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
-         if (error_iterator == errors.end())
-         {
-             qDebug() << "Actual errors:";
-             for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
-                 const Error& error = *it;
-                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
-             }
-         }
-         QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
-     }
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
+        const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
+        QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
+        if (error_iterator == errors.end())
+        {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
+            qDebug() << "Actual errors:";
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
+                const Error& error = *it;
+                qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
+            }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
+        }
+    }
 }
- void test_correct_morse::test3_MessageConsistingOfSeveralLines()
+
+void test_correct_morse::test3_MessageConsistingOfSeveralLines()
 {
-     const QString message = ".-.\n-\n--\n.-.";
-     QSet<Error>  errors;
-     bool correct = correct_morse(message, errors);
+    const QString message = ".-.\n-\n--\n.-.";
+    QSet<Error>  errors;
+    bool correct = correct_morse(message, errors);
 
-     QSet<Error> expectedErrors;
-     // Ожидаемые результаты
-     bool expect_correct = false;
-     Error expect_error;
-     expect_error.type = ManyStrings;
-     expect_error.position_error = -1;
-     expect_error.error_char = "";
-     expectedErrors.insert(expect_error);
+    QSet<Error> expectedErrors;
 
-     // Проверки
-     QCOMPARE(correct, expect_correct);
-     QCOMPARE(errors.size(), expectedErrors.size());
+    // Ожидаемые результаты
+    bool expect_correct = false;
+    Error expect_error;
+    expect_error.type = ManyStrings;
+    expect_error.position_error = -1;
+    expect_error.error_char = "";
+    expectedErrors.insert(expect_error);
 
-     for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
-         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
-         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
-         if (error_iterator == errors.end())
-         {
-             qDebug() << "Actual errors:";
-             for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
-                 const Error& error = *it;
-                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
-             }
-         }
-         QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
-     }
+    // Проверки
+    QCOMPARE(correct, expect_correct);
+    QCOMPARE(errors.size(), expectedErrors.size());
+
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
+        const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
+        QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
+        if (error_iterator == errors.end())
+        {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
+            qDebug() << "Actual errors:";
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
+                const Error& error = *it;
+                qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
+            }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
+        }
+    }
 }
+
 void test_correct_morse::test4_TheMessageContainsOneCharacterOtherThanHyphenAndPoint()
 {
     const QString message = ".A-...-..---";
@@ -116,6 +181,7 @@ void test_correct_morse::test4_TheMessageContainsOneCharacterOtherThanHyphenAndP
     bool correct = correct_morse(message, errors);
 
     QSet<Error> expectedErrors;
+
     // Ожидаемые результаты
     bool expect_correct = false;
     Error expect_error;
@@ -128,100 +194,170 @@ void test_correct_morse::test4_TheMessageContainsOneCharacterOtherThanHyphenAndP
     QCOMPARE(correct, expect_correct);
     QCOMPARE(errors.size(), expectedErrors.size());
 
-    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
         if (error_iterator == errors.end())
         {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
             qDebug() << "Actual errors:";
-            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
                 const Error& error = *it;
                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
             }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
         }
-        QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
     }
 }
- void test_correct_morse::test5_SeveralCharactersOtherThanHyphensAndPoints()
+
+void test_correct_morse::test5_SeveralCharactersOtherThanHyphensAndPoints()
 {
-     const QString message = ". A-...-/..---";
-     QSet<Error>  errors;
-     bool correct = correct_morse(message, errors);
+    const QString message = ". A-...-/..---";
+    QSet<Error>  errors;
+    bool correct = correct_morse(message, errors);
 
-     QSet<Error> expectedErrors;
-     // Ожидаемые результаты
-     bool expect_correct = false;
+    QSet<Error> expectedErrors;
 
-     Error expect_error1;
-     expect_error1.type = OtherSymbols;
-     expect_error1.position_error = 2;
-     expect_error1.error_char = " ";
-     expectedErrors.insert(expect_error1);
+    // Ожидаемые результаты
+    bool expect_correct = false;
 
-     Error expect_error2;
-     expect_error2.type = OtherSymbols;
-     expect_error2.position_error = 3;
-     expect_error2.error_char = "A";
-     expectedErrors.insert(expect_error2);
+    Error expect_error1;
+    expect_error1.type = OtherSymbols;
+    expect_error1.position_error = 2;
+    expect_error1.error_char = " ";
+    expectedErrors.insert(expect_error1);
 
-     Error expect_error3;
-     expect_error3.type = OtherSymbols;
-     expect_error3.position_error = 9;
-     expect_error3.error_char = "/";
-     expectedErrors.insert(expect_error3);
+    Error expect_error2;
+    expect_error2.type = OtherSymbols;
+    expect_error2.position_error = 3;
+    expect_error2.error_char = "A";
+    expectedErrors.insert(expect_error2);
 
-     // Проверки
-     QCOMPARE(correct, expect_correct);
-     QCOMPARE(errors.size(), expectedErrors.size());
+    Error expect_error3;
+    expect_error3.type = OtherSymbols;
+    expect_error3.position_error = 9;
+    expect_error3.error_char = "/";
+    expectedErrors.insert(expect_error3);
 
+    // Проверки
+    QCOMPARE(correct, expect_correct);
+    QCOMPARE(errors.size(), expectedErrors.size());
 
-     for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
-         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
-         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
-         if (error_iterator == errors.end())
-         {
-             qDebug() << "Actual errors:";
-             for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
-                 const Error& error = *it;
-                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
-             }
-         }
-         QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
-     }
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
+        const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
+        QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
+        if (error_iterator == errors.end())
+        {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
+            qDebug() << "Actual errors:";
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
+                const Error& error = *it;
+                qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
+            }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
+        }
+    }
 }
- void test_correct_morse::test6_MessageIsLongerThan20characters()
+
+void test_correct_morse::test6_MessageIsLongerThan20characters()
 {
-     const QString message = "-.---...------.---...---..---..-----.---";
-     QSet<Error>  errors;
-     bool correct = correct_morse(message, errors);
+    const QString message = "-.---...------.---...---..---..-----.---";
+    QSet<Error>  errors;
+    bool correct = correct_morse(message, errors);
 
-     QSet<Error> expectedErrors;
-     // Ожидаемые результаты
-     bool expect_correct = false;
-     Error expect_error;
-     expect_error.type = ManySymbols;
-     expect_error.position_error = -1;
-     expect_error.error_char = "";
-     expectedErrors.insert(expect_error);
+    QSet<Error> expectedErrors;
 
-     // Проверки
-     QCOMPARE(correct, expect_correct);
-     QCOMPARE(errors.size(), expectedErrors.size());
+    // Ожидаемые результаты
+    bool expect_correct = false;
+    Error expect_error;
+    expect_error.type = ManySymbols;
+    expect_error.position_error =-1;
+    expect_error.error_char = "";
+    expectedErrors.insert(expect_error);
 
-     for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
-         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
-         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
-         if (error_iterator == errors.end())
-         {
-             qDebug() << "Actual errors:";
-             for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
-                 const Error& error = *it;
-                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
-             }
-         }
-         QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
-     }
+    // Проверки
+    QCOMPARE(correct, expect_correct);
+    QCOMPARE(errors.size(), expectedErrors.size());
+
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
+        const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
+        QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
+        if (error_iterator == errors.end())
+        {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
+            qDebug() << "Actual errors:";
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
+                const Error& error = *it;
+                qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
+            }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
+        }
+    }
 }
+
 void test_correct_morse::test7_ContainsMoreThan20CharactersAndCharactersOtherThanPointsAndHyphens()
 {
 
@@ -230,6 +366,7 @@ void test_correct_morse::test7_ContainsMoreThan20CharactersAndCharactersOtherTha
     bool correct = correct_morse(message, errors);
 
     QSet<Error> expectedErrors;
+
     // Ожидаемые результаты
     bool expect_correct = false;
 
@@ -256,18 +393,40 @@ void test_correct_morse::test7_ContainsMoreThan20CharactersAndCharactersOtherTha
     QCOMPARE(errors.size(), expectedErrors.size());
 
 
-    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
         if (error_iterator == errors.end())
         {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
             qDebug() << "Actual errors:";
-            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
                 const Error& error = *it;
                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
             }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
         }
-        QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
     }
 }
 void test_correct_morse::test8_ContainsCharactersOtherThanPointsAndHyphensAndConsistsOfMultipleLines()
@@ -309,18 +468,40 @@ void test_correct_morse::test8_ContainsCharactersOtherThanPointsAndHyphensAndCon
     QCOMPARE(errors.size(), expectedErrors.size());
 
 
-    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
         if (error_iterator == errors.end())
         {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
             qDebug() << "Actual errors:";
-            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
                 const Error& error = *it;
                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
             }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
         }
-        QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
     }
 }
 void test_correct_morse::test9_MessageIsLongerThan20CharactersAndConsistsOfMultipleLines()
@@ -350,18 +531,40 @@ void test_correct_morse::test9_MessageIsLongerThan20CharactersAndConsistsOfMulti
     QCOMPARE(errors.size(), expectedErrors.size());
 
 
-    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
         if (error_iterator == errors.end())
         {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
             qDebug() << "Actual errors:";
-            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
                 const Error& error = *it;
                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
             }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
         }
-        QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
     }
 }
 void test_correct_morse::test10_MoreThan20CharactersMultipleLinesAndCharactersOtherThanPointsAndHyphens()
@@ -409,18 +612,40 @@ void test_correct_morse::test10_MoreThan20CharactersMultipleLinesAndCharactersOt
     QCOMPARE(errors.size(), expectedErrors.size());
 
 
-    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator) {
+    for (QSet<Error>::const_iterator exp_iterator = expectedErrors.constBegin(); exp_iterator != expectedErrors.constEnd(); ++exp_iterator)
+    {
         const Error& expectedError = *exp_iterator; // Получаем ошибку, на которую указывает итератор
         QSet<Error>::const_iterator error_iterator = errors.find(expectedError); // Используем errors.find() для QSet
         if (error_iterator == errors.end())
         {
+            qDebug() << "Expected errors:";
+            for (QSet<Error>::const_iterator it = expectedErrors.constBegin(); it != expectedErrors.constEnd(); ++it)
+            {
+                const Error& exp = *it;
+                qDebug() << exp.error_char << exp.position_error << errorTypeToString(exp.type);
+            }
             qDebug() << "Actual errors:";
-            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it) {
+            for (QSet<Error>::const_iterator it = errors.constBegin(); it != errors.constEnd(); ++it)
+            {
                 const Error& error = *it;
                 qDebug() << error.error_char << error.position_error << errorTypeToString(error.type);
             }
+            QSet<Error> exp_errors =  errors - expectedErrors;
+            qDebug() << "Incorrect errors:";
+            for(QSet<Error>::iterator iter = exp_errors.begin(); iter != exp_errors.end(); ++iter)
+            {
+                const Error& expect_er = *iter;
+                qDebug() << expect_er.error_char << expect_er.position_error << errorTypeToString(expect_er.type);
+            }
+            QSet<Error> correct_errors = expectedErrors - errors;
+            qDebug() << "Correct output of the values of these errors:";
+            for(QSet<Error>::iterator iter = correct_errors.begin(); iter != correct_errors.end(); ++iter)
+            {
+                const Error& corret_er = *iter;
+                qDebug() << corret_er.error_char << corret_er.position_error << errorTypeToString(corret_er.type);
+            }
+            QCOMPARE(errors,expectedErrors);
         }
-        QVERIFY2(error_iterator != errors.end(), QString("Expected error %1 not found ").arg(expectedError.toString()).toUtf8());// проверка, был ли найден реальный объект внутри контейнера
     }
 }
 void test_correct_morse::test11_LineHasNoErrors()
@@ -432,7 +657,7 @@ void test_correct_morse::test11_LineHasNoErrors()
     QSet<Error> expectedErrors;
     // Ожидаемые результаты
     bool expect_correct = true;
-     QCOMPARE(correct, expect_correct);
+    QCOMPARE(correct, expect_correct);
 }
 void test_correct_morse::test12_Contains20Characters()
 {

@@ -1,14 +1,16 @@
 /*!
  * \file test_correct_morse.h
  * \brief Заголовочный файл для класса test_correct_morse
+ *\file test_correct_morse.cpp
+ *\brief Реализация тестов для функции correct_morse
  *
  * Этот файл содержит объявление класса test_correct_morse, который предназначен
  * для тестирования функции `correct_morse` (которая,проверяет
  * правильность строк с сообщениями азбуки Морзе).
  */
 
-#ifndef TEST_CORRECT_MORSE_H
-#define TEST_CORRECT_MORSE_H
+#ifndef TEST_CORRECT_MORSE1_H
+#define TEST_CORRECT_MORSE1_H
 
 #include <QObject>
 /*!
@@ -25,7 +27,7 @@ class test_correct_morse : public QObject
 public:
     explicit test_correct_morse(QObject *parent = nullptr);
 
-    private slots:
+private slots:
 
     /*!
      * \brief Тест 1 : Проверка на пустую строку
@@ -96,4 +98,4 @@ public:
 signals:
 };
 
-#endif // TEST_CORRECT_MORSE_H
+#endif // TEST_CORRECT_MORSE1_H
