@@ -34,7 +34,7 @@ bool correct_morse(const QString message, QSet<Error>& errors)
         //Для каждого символа строки, с сообщением на азбуке Морзе
         for (int i = 0; i < length_message; i++)
         {
-           //Если сообщение содержит больше одной строки сообщения (\n), то зафиксировать ошибку превышения количества строк
+            //Если сообщение содержит больше одной строки сообщения (\n), то зафиксировать ошибку превышения количества строк
             if (message[i] == '\n')
             {
                 Error er3;
@@ -62,9 +62,6 @@ bool correct_morse(const QString message, QSet<Error>& errors)
 
 QString Error::toString() const
 {
-    QString result;
-    QTextStream stream(&result);
-
     switch (type)
     {
     case ManyStrings:
@@ -73,13 +70,14 @@ QString Error::toString() const
         return "Входной файл содержит количества символов, которое больше допустимого (20)";
     case EmptyString:
         return "Выбранный файл пуст";
-    case OtherSymbols:
-        stream << "Файл с сообщением содержит символы отличные от дефиса и точки. Символ \'" << error_char << "\' : " << position_error;
-        return result;
+    case OtherSymbols:qDebug() << "Ошибка";
+       return QString("Файл с сообщением содержит символы отличные от дефиса и точки. Символ \' %1 \' : %2").arg(error_char).arg(position_error);
+
     default:
         return "Неизвестная ошибка";
     }
 }
+
 
 bool is_extensive_ok(const QString filename, const QString extension)
 {
@@ -119,8 +117,9 @@ bool is_input_filename_correctly(int argc, char* argv[])
         for (int i = 1; i < argc; i++)
         {
             // Проверить, что расширение файла - txt
-            // qDebug() << argv[i];
-            bool extension_error = is_extensive_ok(argv[i], extension);
+            QString filename = QString(argv[i]);
+
+            bool extension_error = is_extensive_ok(filename, extension);
             // Если ошибка есть, увеличиваем счетчик наличие ошибки в расширении
             if (extension_error == false)
             {
@@ -159,7 +158,8 @@ void decrypt(const QMap <char, QString>& MorseToChar, QString decrypted, QString
 
                 // Добавить букву к переведенной части
                 QString augmented_decrypted = decrypted + found_letter;
-               found_letter = '\0';
+                found_letter = '\0';
+
                 // Если оставшаяся часть на азбуке Морзе непустая
                 if (!morse_withount_pref.isEmpty())
                 {
@@ -202,8 +202,6 @@ void decoding_message_from_Morse(QString message_morse, QSet <QString>& decripti
     decrypt(MorseToChar, decrypted, message_morse, decriptions);
 }
 
-
-
 int main(int argc, char*  argv[])
 {
     QString str_morse;
@@ -218,14 +216,13 @@ int main(int argc, char*  argv[])
     //Если ошибок нет
     if(input_correct)
     {
-        // QFile morse_file("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/morse.txt");
         QFile morse_file(argv[1]);
 
-      // Проверка открытия файла
+        // Проверка открытия файла
         if (!morse_file.open(QIODevice::ReadOnly))
         {
-              qWarning() << "Неверно указан файл с входными данными. Возможно, файл не существует.";
-              morse_file.close();
+            qWarning() << "Неверно указан файл с входными данными. Возможно, файл не существует.";
+            morse_file.close();
         }
         else
         {
@@ -243,9 +240,10 @@ int main(int argc, char*  argv[])
         {
             QSet<Error>::iterator iter = errors.begin();
             while (iter != errors.end())
-           {
-                    qDebug() << iter->toString();
-                    iter++;
+            {
+                QString res = iter->toString();
+                qInfo() << res;
+                iter++;
             }
         }
         //Иначе расшифровать сообщение на азбуке Морзе и записать в файл все переводы
@@ -253,14 +251,7 @@ int main(int argc, char*  argv[])
         {
             decoding_message_from_Morse(str_morse,  decriptions);
 
-            //проверка
-            //  for (QSet<QString>::iterator it = decriptions.begin(); it != decriptions.end(); ++it)
-            // {
-            //     qDebug() << *it << '\n';
-            //  }
-
-            //QFile decryptedFile("C:/Users/Мария/Documents/decryption_morse/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/debug/decription.txt");
-             QFile decryptedFile(argv[2]);
+            QFile decryptedFile(argv[2]);
 
             if (!decryptedFile.open(QIODevice::WriteOnly )) {
                 qCritical() << "Неверно указан файл для выходных данных. Возможно, указанного расположения не существует или нет прав на запись.";
@@ -279,16 +270,16 @@ int main(int argc, char*  argv[])
         }
     }
     //Иначе вывести сообщение с ошибкой ввода данных
-     else
-      {
-        qInfo() << "Неправильно введено расширение файла. Должно быть .txt";
-     }
+    else
+    {
+        qInfo() << "Неправильно введено расширение файла. Должно быть .txt" << '\n';
+    }
 
 
     //Вернуть успешность завершения функции
-      // QTest::qExec(new test_decrypt);
-      // QTest::qExec(new test_decoding_message_from_Morse);
-      // QTest::qExec(new test_correct_morse);
+    QTest::qExec(new test_decrypt);
+    QTest::qExec(new test_decoding_message_from_Morse);
+    QTest::qExec(new test_correct_morse);
     return 0;
 }
 
